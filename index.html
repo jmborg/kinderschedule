@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="application-name" content="Solstickan Förskola" />
+    <meta name="apple-mobile-web-app-title" content="Solstickan Förskola" />
+    <meta name="theme-color" content="#f4f9f8" />
+    <title>Veckoschema för förskolepedagoger</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="toolbar" aria-label="Schemahantering">
+        <div class="toolbar-title">
+          <h1>Solstickan Förskola</h1>
+        </div>
+
+        <hr class="toolbar-divider" />
+
+        <div class="toolbar-row">
+          <button id="periodButton" type="button" class="period-button secondary">
+            <span>Vald period</span>
+            <strong id="selectedPeriodLabel">18 veckor</strong>
+          </button>
+
+          <div class="toolbar-actions">
+            <button id="saveFileButton" type="button">Spara fil</button>
+            <label class="file-button secondary">
+              Öppna fil
+              <input id="openFileInput" type="file" accept="application/json,.json" />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="layout">
+        <aside class="side-panel" aria-label="Pedagoger">
+          <div class="panel-header">
+            <h2>Pedagoger</h2>
+            <span id="educatorCount" class="count-badge">0</span>
+          </div>
+
+          <form id="addEducatorForm" class="add-form">
+            <label>
+              Lägg till pedagog
+              <span class="inline-control">
+                <input id="educatorNameInput" type="text" autocomplete="off" placeholder="Namn" />
+                <button type="submit">Lägg till</button>
+              </span>
+            </label>
+          </form>
+
+          <hr class="panel-divider" />
+
+          <div id="educatorList" class="educator-list" role="list"></div>
+          <div id="educatorEmptyState" class="educator-empty-state" hidden>
+            <h3>Inga pedagoger tillagda</h3>
+            <p>Lägg till en pedagog för att börja planera, eller öppna en sparad schemafil.</p>
+            <div class="educator-empty-actions">
+              <button id="focusEducatorInputButton" type="button">Lägg till pedagog</button>
+              <label for="openFileInput" class="file-button secondary">Öppna sparad fil</label>
+            </div>
+          </div>
+
+          <hr class="panel-divider" />
+          <button id="printAllButton" type="button" class="print-all-button secondary">Skriv ut alla</button>
+        </aside>
+
+        <section class="schedule-panel" aria-label="Veckoschema">
+          <div class="schedule-header">
+            <div class="schedule-title-block">
+              <div class="selected-educator-row">
+                <h2 id="selectedEducatorName">Ingen pedagog vald</h2>
+                <button id="printButton" type="button" class="icon-action secondary" aria-label="Skriv ut" title="Skriv ut">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3ZM16 19H8v-5h8v5Zm2-6c-.83 0-1.5-.67-1.5-1.5S17.17 10 18 10s1.5.67 1.5 1.5S18.83 13 18 13ZM18 3H6v4h12V3Z" />
+                  </svg>
+                </button>
+              </div>
+              <p id="planningRangeLabel" class="planning-range">vecka 1 till vecka 18</p>
+            </div>
+            <div class="total-badge">
+              <span>Totalt antal timmar</span>
+              <strong id="selectedTotal">0 h</strong>
+            </div>
+          </div>
+
+          <div id="emptyState" class="empty-state">
+            Lägg till eller välj en pedagog för att börja planera veckan.
+          </div>
+
+          <div id="scheduleGrid" class="schedule-grid" hidden></div>
+        </section>
+      </section>
+    </main>
+
+    <section id="printAllOutput" class="print-all-output" aria-hidden="true"></section>
+
+    <div id="periodModal" class="modal-backdrop" hidden>
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="periodModalTitle">
+        <div class="modal-header">
+          <div>
+            <h2 id="periodModalTitle">Välj period</h2>
+          </div>
+          <button id="closePeriodModalButton" type="button" class="icon-button" aria-label="Stäng">×</button>
+        </div>
+
+        <form id="periodForm" class="period-form">
+          <div class="period-fields">
+            <label>
+              Startvecka
+              <input id="periodStartInput" type="text" inputmode="numeric" autocomplete="off" placeholder="26" required />
+            </label>
+            <label>
+              Slutvecka
+              <input id="periodEndInput" type="text" inputmode="numeric" autocomplete="off" placeholder="43" required />
+            </label>
+          </div>
+
+          <div class="excluded-weeks-panel">
+            <div class="excluded-weeks-header">
+              <h3>Exkludera veckor</h3>
+              <p id="periodWeekCount">0 veckor valda</p>
+            </div>
+            <div id="excludedWeeksList" class="excluded-weeks-list"></div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="cancelPeriodButton" type="button" class="secondary">Avbryt</button>
+            <button type="submit">Använd period</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <template id="educatorTemplate">
+      <div class="educator-row" role="listitem">
+        <button class="educator-select" type="button">
+          <span class="educator-name"></span>
+          <span class="educator-total"></span>
+        </button>
+        <button class="icon-button remove-educator" type="button" aria-label="Ta bort pedagog">×</button>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
